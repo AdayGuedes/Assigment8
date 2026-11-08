@@ -31,14 +31,40 @@ def bfs(graph, start, target):
         graph = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1]}
         bfs(graph, 0, 3) returns [0, 1, 3]
     """
-    # TODO: Implement BFS
-    # Hints:
-    # - Use a queue (deque) to track nodes to visit
-    # - Track visited nodes to avoid cycles
-    # - Track parent pointers to reconstruct path
-    # - Return path from start to target as a list
-    
-    pass
+    if start not in graph or target not in graph:
+        return []
+
+    if start == target:
+        return [start]
+
+    # parent doubles as the visited set: a node is in `parent` as soon as it is
+    # discovered (marked when enqueued, so it never enters the queue twice).
+    parent = {start: None}
+    queue = deque([start])
+
+    while queue:
+        current = queue.popleft()
+
+        for neighbor in graph[current]:
+            if neighbor in parent:
+                continue
+
+            parent[neighbor] = current
+
+            if neighbor == target:
+                # Walk the parent pointers back to start, then reverse.
+                path = []
+                node = target
+                while node is not None:
+                    path.append(node)
+                    node = parent[node]
+                path.reverse()
+                return path
+
+            queue.append(neighbor)
+
+    # Queue exhausted without reaching target: no path exists
+    return []
 
 
 # ============================================================================
@@ -60,13 +86,26 @@ def dfs(graph, start):
         graph = {0: [1, 2], 1: [0, 3], 2: [0], 3: [1], 4: [5], 5: [4]}
         dfs(graph, 0) returns {0, 1, 2, 3}
     """
-    # TODO: Implement DFS
-    # Hints:
-    # - Use recursion or a stack to explore deeply
-    # - Track visited nodes to avoid infinite loops
-    # - Return a set of all reachable user IDs
-    
-    pass
+    if start not in graph:
+        return set()
+
+    # Iterative DFS with an explicit stack (LIFO). Avoids Python's ~1000-call
+    # recursion limit, which long friend chains in larger networks could hit.
+    visited = set()
+    stack = [start]
+
+    while stack:
+        node = stack.pop()
+
+        if node in visited:
+            continue
+        visited.add(node)
+
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                stack.append(neighbor)
+
+    return visited
 
 
 # ============================================================================
